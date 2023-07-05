@@ -68,8 +68,8 @@ void loop() {
         digitalWrite(motor2StepPin, LOW);
         delayMicroseconds(500);
       }
-
-      delay(2000);
+    }
+      if(mesaj == 'a'){
         // Motor 3'ü sağa döndür
       digitalWrite(motor3DirPin, LOW);
       for (int i = 0; i < 100; i++) {
