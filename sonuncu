@@ -1,0 +1,138 @@
+
+#include <BluetoothSerial.h>
+
+#include <Servo.h>
+
+
+BluetoothSerial bt_iletisim;
+
+int hizSag = 21;
+int hizSol = 20;
+int sagileri = 11;
+int saggeri = 10;
+int solileri = 13;
+int solgeri = 12;
+
+int hiz = 255;
+
+#include <deneyap.h>
+
+
+Servo myservo1;
+Servo myservo2;
+Servo myservo3;
+Servo myservo4;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  bt_iletisim.begin("AG Teknoloji");
+
+  myservo1.attach(22);
+  myservo2.attach(23);
+  myservo3.attach(30);
+  myservo4.attach(31);
+
+  Serial.begin(2400);
+  pinMode(hizSag, OUTPUT);
+  pinMode(hizSol, OUTPUT);
+  pinMode(saggeri, OUTPUT);
+  pinMode(sagileri, OUTPUT);
+  pinMode(solgeri, OUTPUT);
+  pinMode(solileri, OUTPUT);
+
+  ledcSetup(0, 30000, 8);  // kanal 0-15 arası, frekans ledler için =5000 , çözünürlük=8 bit (0-255 arası değer)
+  ledcSetup(1, 30000, 8);
+  ledcAttachPin(hizSag, 0);
+  ledcAttachPin(hizSol, 1);
+}
+
+
+
+void loop() {
+  if (bt_iletisim.available() > 0) {
+    String receivedString = bt_iletisim.readString();
+    Serial.println(receivedString);
+
+    if (receivedString == "1 60") {
+      ileri();
+    }
+    if (receivedString == "2 60") {
+      dur();
+      Serial.println("dur çalıştı");
+    }
+    if (receivedString == "3 60") {
+      sag();
+    }
+    if (receivedString == "4 60") {
+      sol();
+    }
+    if (receivedString == "5 60") {
+      geri();
+    }
+
+    String servoName = receivedString.substring(0, 1);      // gelen kod okundu
+    String servoValueString = receivedString.substring(2);  // boşluktan sonrası okunuyor
+    int servoValue = servoValueString.toInt();              // string integere çevrildi
+
+
+     if (servoName == "a") {
+      myservo1.write(servoValue);
+    } else if (servoName == "b") {
+      myservo2.write(servoValue);
+    } else if (servoName == "c") {
+      myservo3.write(servoValue);
+    } else if (servoName == "d") {
+      myservo4.write(servoValue);
+    } else if (servoName == "k") {
+      hiz = servoValue;
+    }
+
+
+  }
+}
+
+void sag() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void sol() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
+
+void ileri() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void dur() {
+  ledcWrite(0, hiz - 150);
+  ledcWrite(1, hiz - 150);
+  digitalWrite(sagileri, LOW);
+  digitalWrite(saggeri, LOW);
+  digitalWrite(solileri, LOW);
+  digitalWrite(solgeri, LOW);
+}
+
+void geri() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
