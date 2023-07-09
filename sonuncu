@@ -1,57 +1,53 @@
+#include "ServoESP32.h"
 
-#include <BluetoothSerial.h>
-
-#include <Servo.h>
-
-
-BluetoothSerial bt_iletisim;
-
-int hizSag = 21;
-int hizSol = 20;
-int sagileri = 11;
-int saggeri = 10;
-int solileri = 13;
-int solgeri = 12;
-
-int hiz = 255;
 
 #include <deneyap.h>
+#include "BluetoothSerial.h"
 
+BluetoothSerial SerialBT;  // Bluetooth icin class tanimlama
+/*
+int hizSag = 27;
+int hizSol = 26;
+int sagileri = D14;
+int saggeri = D15;
+int solileri = D12;
+int solgeri = D13;*/
+#define solileri D14
+#define solgeri D15
+#define hizSol 21
+#define hizSag 20
+#define sagileri D12
+#define saggeri D13
 
+int hiz = 180;
 Servo myservo1;
 Servo myservo2;
 Servo myservo3;
 Servo myservo4;
 
-
 void setup() {
-  // put your setup code here, to run once:
-  bt_iletisim.begin("AG Teknoloji");
-
-  myservo1.attach(22);
-  myservo2.attach(23);
-  myservo3.attach(30);
-  myservo4.attach(31);
-
-  Serial.begin(2400);
+  Serial.begin(115200);            // Seri haberlesme baslatildi
+  SerialBT.begin("AG TEKNOLOJİ");  // Bluetooth yayin ismi                  // Bluetooth haberlesme kanali acildi
+  Serial.println("\nCihaz yayin yapmaya basladi, eslesme yapilabilir!");
+  myservo1.attach(D9);
+  myservo2.attach(D8);
+  myservo3.attach(D0);
+  myservo4.attach(D4); 
   pinMode(hizSag, OUTPUT);
   pinMode(hizSol, OUTPUT);
   pinMode(saggeri, OUTPUT);
   pinMode(sagileri, OUTPUT);
   pinMode(solgeri, OUTPUT);
   pinMode(solileri, OUTPUT);
-
   ledcSetup(0, 30000, 8);  // kanal 0-15 arası, frekans ledler için =5000 , çözünürlük=8 bit (0-255 arası değer)
   ledcSetup(1, 30000, 8);
   ledcAttachPin(hizSag, 0);
   ledcAttachPin(hizSol, 1);
 }
 
-
-
 void loop() {
-  if (bt_iletisim.available() > 0) {
-    String receivedString = bt_iletisim.readString();
+  if (SerialBT.available() > 0) {
+    String receivedString = SerialBT.readString();
     Serial.println(receivedString);
 
     if (receivedString == "1 60") {
@@ -78,6 +74,7 @@ void loop() {
 
      if (servoName == "a") {
       myservo1.write(servoValue);
+      Serial.println("servoya ugradi");
     } else if (servoName == "b") {
       myservo2.write(servoValue);
     } else if (servoName == "c") {
@@ -90,7 +87,11 @@ void loop() {
 
 
   }
+  delay(20);
 }
+
+
+
 
 void sag() {
   ledcWrite(0, hiz - 50);
