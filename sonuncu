@@ -19,7 +19,7 @@ int solgeri = D13;*/
 #define sagileri D12
 #define saggeri D13
 
-int hiz = 180;
+int hiz = 120;
 Servo myservo1;
 Servo myservo2;
 Servo myservo3;
@@ -121,8 +121,8 @@ void ileri() {
 }
 
 void dur() {
-  ledcWrite(0, hiz - 150);
-  ledcWrite(1, hiz - 150);
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
   digitalWrite(sagileri, LOW);
   digitalWrite(saggeri, LOW);
   digitalWrite(solileri, LOW);
