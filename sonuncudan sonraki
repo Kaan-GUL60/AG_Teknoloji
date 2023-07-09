@@ -1,0 +1,209 @@
+#include "Servo.h"
+
+
+#include <deneyap.h>
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;  // Bluetooth icin class tanimlama
+/*
+int hizSag = 27;
+int hizSol = 26;
+int sagileri = D14;
+int saggeri = D15;
+int solileri = D12;
+int solgeri = D13;*/
+#define solileri D14
+#define solgeri D15
+#define hizSol PWM1
+#define hizSag PWM0
+#define sagileri D12
+#define saggeri D13
+
+int hiz = 120;
+Servo myservo1;
+Servo myservo2;
+Servo myservo3;
+Servo myservo4;
+
+void setup() {
+  Serial.begin(115200);            // Seri haberlesme baslatildi
+  SerialBT.begin("AG TEKNOLOJİ");  // Bluetooth yayin ismi                  // Bluetooth haberlesme kanali acildi
+  Serial.println("\nCihaz yayin yapmaya basladi, eslesme yapilabilir!");
+  myservo1.attach(D9);
+  myservo2.attach(D8);
+  myservo3.attach(21);
+  myservo4.attach(D4);
+  pinMode(hizSag, OUTPUT);
+  pinMode(hizSol, OUTPUT);
+  pinMode(saggeri, OUTPUT);
+  pinMode(sagileri, OUTPUT);
+  pinMode(solgeri, OUTPUT);
+  pinMode(solileri, OUTPUT);
+  ledcSetup(0, 5000, 8);  // kanal 0-15 arası, frekans ledler için =5000 , çözünürlük=8 bit (0-255 arası değer)
+  ledcSetup(1, 5000, 8);
+  ledcAttachPin(hizSag, 0);
+  ledcAttachPin(hizSol, 1);
+}
+
+void loop() {
+  if (SerialBT.available() > 0) {
+    String receivedString = SerialBT.readString();
+    Serial.println(receivedString);
+
+    if (receivedString == "1 60") {
+      ileri();
+    }
+    if (receivedString == "2 60") {
+      dur();
+      Serial.println("dur çalıştı");
+    }
+    if (receivedString == "3 60") {
+      sag();
+    }
+    if (receivedString == "4 60") {
+      sol();
+    }
+    if (receivedString == "5 60") {
+      geri();
+    }
+
+    String servoName = receivedString.substring(0, 1);      // gelen kod okundu
+    String servoValueString = receivedString.substring(2);  // boşluktan sonrası okunuyor
+    int servoValue = servoValueString.toInt();              // string integere çevrildi
+
+
+    if (servoName == "a") {
+      if (servoValue == 82) {
+        for (int pos = 172; pos >= 82; pos -= 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo1.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (servoValue == 172) {
+        for (int pos = 82; pos <= 172; pos += 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo1.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else {
+        myservo1.write(servoValue);
+      }
+    } else if (servoName == "b") {
+      if (servoValue == 2) {
+        for (int pos = 132; pos >= 2; pos -= 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo2.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (servoValue == 132) {
+        for (int pos = 2; pos <= 132; pos += 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo2.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else {
+        myservo2.write(servoValue);
+      }
+    } else if (servoName == "c") {
+      if (servoValue == 20) {
+        for (int pos = 134; pos >= 20; pos -= 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo3.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (servoValue == 134) {
+        for (int pos = 20; pos <= 134; pos += 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo3.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else {
+        myservo3.write(servoValue);
+      }
+
+
+
+    } else if (servoName == "d") {
+      if (120 > servoValue > 90) {
+
+        for (int pos = 90; pos <= 120; pos += 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo4.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (60 < servoValue <= 90) {
+
+        for (int pos = 90; pos <= 60; pos -= 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo4.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (60 > servoValue) {
+
+        for (int pos = 60; pos <= 90; pos += 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo4.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      } else if (120 < servoValue) {
+
+        for (int pos = 120; pos <= 90; pos -= 1) {  // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo4.write(pos);  // tell servo to go to position in variable 'pos'
+          delay(15);            // waits 15 ms for the servo to reach the position
+        }
+      }
+    } else if (servoName == "k") {
+      hiz = servoValue;
+    }
+  }
+  delay(20);
+}
+
+
+
+
+void sag() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void sol() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
+
+void ileri() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void dur() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, LOW);
+  digitalWrite(saggeri, LOW);
+  digitalWrite(solileri, LOW);
+  digitalWrite(solgeri, LOW);
+}
+
+void geri() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
