@@ -1,0 +1,150 @@
+#include <Deneyap_Servo.h>
+
+
+
+#include <deneyap.h>
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;  // Bluetooth icin class tanimlama
+/*
+int hizSag = 27;
+int hizSol = 26;
+int sagileri = D14;
+int saggeri = D15;
+int solileri = D12;
+int solgeri = D13;*/
+#define solileri D14
+#define solgeri D15
+#define hizSol PWM1
+#define hizSag PWM0
+#define sagileri D12
+#define saggeri D13
+
+int hiz = 230;
+Servo myservo1;
+Servo myservo2;
+Servo myservo3;
+Servo myservo4;
+
+void setup() {
+  Serial.begin(115200);            // Seri haberlesme baslatildi
+  SerialBT.begin("AG TEKNOLOJİ");  // Bluetooth yayin ismi                  // Bluetooth haberlesme kanali acildi
+  Serial.println("\nCihaz yayin yapmaya basladi, eslesme yapilabilir!");
+  myservo1.attach(D3);
+  myservo2.attach(D5, 1);
+  myservo3.attach(D6, 2);
+  myservo4.attach(D8, 3);
+  pinMode(hizSag, OUTPUT);
+  pinMode(hizSol, OUTPUT);
+  pinMode(saggeri, OUTPUT);
+  pinMode(sagileri, OUTPUT);
+  pinMode(solgeri, OUTPUT);
+  pinMode(solileri, OUTPUT);
+  ledcSetup(0, 30000, 8);  // kanal 0-15 arası, frekans ledler için =5000 , çözünürlük=8 bit (0-255 arası değer)
+  ledcSetup(1, 30000, 8);
+  ledcAttachPin(hizSag, 0);
+  ledcAttachPin(hizSol, 1);
+}
+
+void loop() {
+  if (SerialBT.available() > 0) {
+    String receivedString = SerialBT.readString();
+    Serial.println(receivedString);
+
+    if (receivedString == "1 60") {
+      ileri();
+      delay(200);
+      dur();
+    }
+    if (receivedString == "2 60") {
+      dur();
+      delay(200);
+      dur();
+    }
+    if (receivedString == "3 60") {
+      sag();
+      delay(200);
+      dur();
+    }
+    if (receivedString == "4 60") {
+      sol();
+      delay(200);
+      dur();
+    }
+    if (receivedString == "5 60") {
+      geri();
+      delay(200);
+      dur();
+    }
+
+    String servoName = receivedString.substring(0, 1);      // gelen kod okundu
+    String servoValueString = receivedString.substring(2);  // boşluktan sonrası okunuyor
+    int servoValue = servoValueString.toInt();              // string integere çevrildi
+
+
+    if (servoName == "a") {
+      myservo1.write(servoValue);
+    }
+    if (servoName == "b") {
+      myservo2.write(servoValue);
+    }
+    if (servoName == "c") {
+      myservo3.write(servoValue);
+    }
+    if (servoName == "d") {
+      myservo4.write(servoValue);
+    }
+    if (servoName == "k") {
+      hiz = servoValue;
+    }
+  }
+  delay(20);
+}
+
+
+
+
+void sag() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void sol() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
+
+void ileri() {
+  ledcWrite(0, hiz);
+  ledcWrite(1, hiz);
+  digitalWrite(sagileri, 1);
+  digitalWrite(saggeri, 0);
+  digitalWrite(solileri, 1);
+  digitalWrite(solgeri, 0);
+}
+
+void dur() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, LOW);
+  digitalWrite(saggeri, LOW);
+  digitalWrite(solileri, LOW);
+  digitalWrite(solgeri, LOW);
+}
+
+void geri() {
+  ledcWrite(0, hiz - 50);
+  ledcWrite(1, hiz - 50);
+  digitalWrite(sagileri, 0);
+  digitalWrite(saggeri, 1);
+  digitalWrite(solileri, 0);
+  digitalWrite(solgeri, 1);
+}
